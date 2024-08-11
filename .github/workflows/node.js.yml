@@ -1,13 +1,13 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Node.js CI
+name: sundevs-challenge-Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -15,20 +15,48 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      JWT_SECRET: secretKey
+      PORT: 3000
+      JWT_SECRET: SunDevs$2024$
+      DB_HOST: awsrds.cj0wows8si0a.us-east-1.rds.amazonaws.com
+      DB_PORT: 3306
+      DB_USER: admin
+      DB_PASS: Admin$2024
+      DB_DATABASE: sundevs-challenge
+      SERVERLESS_ACCESS_KEY: AKLMzJxuR7EiWWddtqrUiOqgzPfBwFOUlbRlrAh4GH2Qd
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout to repo
+      uses: actions/checkout@v2
+
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
+    - name: Install nest cli
+      run: npm install -g @nestjs/cli
+
     - run: npm install
-    - run: npm run test
-    - run: npm run test:e2e
+
+    - name: Run Unit Tests
+      run: npm run test
+
+    - name: Run e2e test
+      run: npm run test:e2e
+
+    - name: Run Build
+      run: npm run build
+
+    - name: Serverless Deploy
+      uses: serverless/github-action@master
+      with:
+        args: deploy
+      env:
+        LOG_LEVEL: debug
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
