@@ -7,7 +7,7 @@ import { UpdateResult } from 'typeorm';
 import { IApiResponse } from '../../interfaces/api-response.interface';
 import { IsAdminGuard } from '../guards/is-admin.guard';
 
-@ApiTags('Roles')
+@ApiTags('Roles and Permissions')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, IsAdminGuard)
 @Controller('/api/roles')
@@ -18,7 +18,7 @@ export class RoleController {
     ) { }
 
     @Get()
-    @ApiOperation({ summary: 'Get all roles' })
+    @ApiOperation({ summary: 'Get all roles and permissions' })
     @ApiResponse({
         status: 200,
         description: 'Get an array with all roles',
